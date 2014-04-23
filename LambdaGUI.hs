@@ -12,9 +12,12 @@ mainWindowDef = do
     
     -- Construct the file menu
     fileMenu <- menuPane [text := "File"]
+    fileOpen <- menuItem fileMenu [text := "Open..."]
     menuLine fileMenu
     quit <- menuQuit fileMenu [help := "Quit the editor"]
     
+    -- CMS: If we need to do cleanup operations, this should be moved to the network
+    -- description I think
     set quit [on command := close f]
 
     -- Construct panes
