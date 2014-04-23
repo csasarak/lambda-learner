@@ -1,15 +1,13 @@
 
-module Main where
+module LambdaGUI where
 
 import Graphics.UI.WX hiding (Event)
 import Reactive.Banana
 import Reactive.Banana.WX
 
-main :: IO ()
-main = start mainWindow
-
-mainWindow :: IO()
-mainWindow = do 
+-- A specification for the main GUI window, can be used by the event network
+mainWindowDef :: IO()
+mainWindowDef = do 
     f <- frame [text := "Lambda Learner"]
     
     -- Construct the file menu
