@@ -1,9 +1,10 @@
-
 module LambdaGUI where
 
 import Graphics.UI.WX hiding (Event)
 import Reactive.Banana
 import Reactive.Banana.WX
+
+{-# LANGUAGE ScopedTypeVariables #-} -- allows "forall t. Moment t"
 
 -- A specification for the main GUI window, can be used by the event network
 mainWindowDef :: IO()
@@ -35,3 +36,9 @@ mainWindowDef = do
              row 5 [fill $ widget editorP1, 
                  fill $ widget editorP2]
             ]]
+    let networkDescription :: forall t. Frameworks t => Moment t ()
+        networkDescription = return () 
+    
+    network <- compile networkDescription
+    actuate network
+        
