@@ -24,6 +24,14 @@ mainWindowDef = do
     editorP1 <- textCtrl f []
     editorP2 <- textCtrl f []
 
-    set f [menuBar := [fileMenu], layout := margin 5 $ row 5 
-        [fill . widget $ editorP1, 
-        fill . widget $ editorP2]]
+    -- buttons 
+    buttonPanel <- panel f []
+    quitButton <- button buttonPanel [text := "Quit"]
+
+    set f [menuBar := [fileMenu], layout := margin 5 $ column 5 [
+            -- Button panel at the top
+            hstretch $ container buttonPanel $ row 5 [widget quitButton],
+            -- The text area widgets
+             row 5 [fill $ widget editorP1, 
+                 fill $ widget editorP2]
+            ]]
