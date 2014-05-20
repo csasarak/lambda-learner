@@ -3,6 +3,7 @@ module LambdaGUI where
 import Graphics.UI.WX hiding (Event)
 import Reactive.Banana
 import Reactive.Banana.WX
+import Debug.Trace as D
 
 {-# LANGUAGE ScopedTypeVariables #-} -- allows "forall t. Moment t"
 
@@ -27,8 +28,9 @@ mainWindowDef = do
 
     -- buttons 
     buttonPanel <- panel f []
-    quitButton <- button buttonPanel [text := "Quit"]
+    quitButton <- button buttonPanel [text := "Quit", on command := close f]
 
+    -- Lay out the widgets
     set f [menuBar := [fileMenu], layout := margin 5 $ column 5 [
             -- Button panel at the top
             hstretch $ container buttonPanel $ row 5 [widget quitButton],
@@ -37,8 +39,12 @@ mainWindowDef = do
                  fill $ widget editorP2]
             ]]
     let networkDescription :: forall t. Frameworks t => Moment t ()
-        networkDescription = return () 
-    
+        networkDescription = do
+            bP1TxtInp <- behaviorText editorP1 ""
+            bP2TxtInp <- behaviorText editorP2 ""
+
+            sink editorP2 [ text :== bP1TxtInp ]
+
     network <- compile networkDescription
     actuate network
         
