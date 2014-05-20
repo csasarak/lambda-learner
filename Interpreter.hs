@@ -254,3 +254,27 @@ interpretText str =
    let toks = Scanner.alexScanTokens str
        exp = Parser.parse toks
    in multistepExp exp
+
+stepTextFromFile fil =
+   do
+      s <- readFile fil
+      return (stepText s)
+
+interpretTextFromFile fil =
+   do
+      s <- readFile fil
+      return (interpretText s)
+
+showStepsRec :: Parser.Exp -> [String]
+showStepsRec exp =
+   let str = show exp
+       step = stepExp exp
+   in case step of
+      Nothing   -> [str]
+      Just exp' -> str:(showStepsRec exp')
+
+showAllSteps :: String -> [String]
+showAllSteps str =
+   let toks = Scanner.alexScanTokens str
+       exp = Parser.parse toks
+   in showStepsRec exp
