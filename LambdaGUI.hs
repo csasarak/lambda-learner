@@ -18,7 +18,7 @@ mainWindowDef = do
     
     -- Construct the file menu
     fileMenu <- menuPane [text := "File"]
-    fileOpen <- menuItem fileMenu [text := "Open..."]
+    -- fileOpen <- menuItem fileMenu [text := "Open..."]
     menuLine fileMenu
     quit <- menuQuit fileMenu [help := "Quit the editor"]
     
@@ -50,21 +50,9 @@ mainWindowDef = do
             
             let
                 treeToString  = show <$> I.stepText
-                -- getText :: Frameworks s => Moment s (AnyMoment Behavior String)
-                -- getText = do 
-                --     bP1TxtInp <- trimB =<< behaviorText editorP1 ""
-                --     return bP1TxtInp
 
-            -- eGetText <- execute $ FrameworksMoment getText <$ eStep 
-                -- steppedOnce :: Behavior t String
-                -- steppedOnce = (treeToString <$> bP1TxtInp)
-                stepped = stepper "" 
-
-            -- bParseText :: Behavior t String
-            -- bParseText = accumB "" 
-            -- sink editorP2 [text :== bP1TxtInp]
-            --sink editorP2 [text :== steppedOnce]
-            return ()
+            reactimate $ fmap (\_ -> do txt <- get editorP1 text
+                                        set editorP2 [text := txt])  eStep
     network <- compile networkDescription
     actuate network
         
