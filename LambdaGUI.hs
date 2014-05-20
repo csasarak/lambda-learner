@@ -4,6 +4,10 @@ import Graphics.UI.WX hiding (Event)
 import Reactive.Banana
 import Reactive.Banana.WX
 import Debug.Trace as D
+import Interpreter as I
+import Parser as P
+import Data.Maybe as DM
+import Control.Exception 
 
 {-# LANGUAGE ScopedTypeVariables #-} -- allows "forall t. Moment t"
 
@@ -29,22 +33,38 @@ mainWindowDef = do
     -- buttons 
     buttonPanel <- panel f []
     quitButton <- button buttonPanel [text := "Quit", on command := close f]
+    stepButton <- button buttonPanel [text := "Step"]
 
     -- Lay out the widgets
     set f [menuBar := [fileMenu], layout := margin 5 $ column 5 [
             -- Button panel at the top
-            hstretch $ container buttonPanel $ row 5 [widget quitButton],
+            hstretch $ container buttonPanel $ row 5 [widget quitButton, widget stepButton],
             -- The text area widgets
              row 5 [fill $ widget editorP1, 
                  fill $ widget editorP2]
             ]]
     let networkDescription :: forall t. Frameworks t => Moment t ()
         networkDescription = do
-            bP1TxtInp <- behaviorText editorP1 ""
-            bP2TxtInp <- behaviorText editorP2 ""
 
-            sink editorP2 [ text :== bP1TxtInp ]
+            eStep <- event0 stepButton command
+            
+            let
+                treeToString  = show <$> I.stepText
+                -- getText :: Frameworks s => Moment s (AnyMoment Behavior String)
+                -- getText = do 
+                --     bP1TxtInp <- trimB =<< behaviorText editorP1 ""
+                --     return bP1TxtInp
 
+            -- eGetText <- execute $ FrameworksMoment getText <$ eStep 
+                -- steppedOnce :: Behavior t String
+                -- steppedOnce = (treeToString <$> bP1TxtInp)
+                stepped = stepper "" 
+
+            -- bParseText :: Behavior t String
+            -- bParseText = accumB "" 
+            -- sink editorP2 [text :== bP1TxtInp]
+            --sink editorP2 [text :== steppedOnce]
+            return ()
     network <- compile networkDescription
     actuate network
         
