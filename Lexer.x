@@ -1,5 +1,5 @@
 {
-module Scanner (Token(..), lexFromFileToFile) where
+module Scanner (Token(..), lexFromFile, lexFromFileToFile, alexScanTokens) where
 }
 
 %wrapper "basic"
@@ -18,6 +18,9 @@ tokens :-
    "+"				{ \s -> S_Plus }
    "-"				{ \s -> S_Minus }
    "->"				{ \s -> S_Arrow }
+   "if"				{ \s -> S_If }
+   "then"			{ \s -> S_Then }
+   "else"			{ \s -> S_Else }
    $digit+			{ \s -> S_Int (read s) }
    $alpha			{ \s -> S_Var (head s) }
    fix				{ \s -> S_Fix }
@@ -31,6 +34,9 @@ data Token =
  | S_Plus
  | S_Minus
  | S_Arrow
+ | S_If
+ | S_Then
+ | S_Else
  | S_Int Int
  | S_Var Char
  | S_Fix
