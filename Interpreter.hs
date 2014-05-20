@@ -6,7 +6,8 @@
    Provides Operational Semantics for basic Lambda Calculus
 -}
 
-module Interpreter where
+module Interpreter (stepExp, multistepExp, stepText, interpretText) where
+import Scanner
 import Parser
 
 -- Checks to see if an expression cannot be evaluated more
@@ -234,3 +235,22 @@ stepAppExp ae =
                            Just val -> Nothing
      -- A value cannot take a step
      Parser.Value v -> Nothing
+
+multistepExp :: Parser.Exp -> Parser.Exp
+multistepExp exp =
+   let exp' = stepExp exp
+   in case exp' of
+      Nothing    -> exp
+      Just exp'' -> multistepExp exp''
+
+stepText :: String -> Maybe Parser.Exp
+stepText str = 
+   let toks = Scanner.alexScanTokens str
+       exp = Parser.parse toks
+   in stepExp exp
+
+interpretText :: String -> Parser.Exp
+interpretText str =
+   let toks = Scanner.alexScanTokens str
+       exp = Parser.parse toks
+   in multistepExp exp

@@ -1,5 +1,5 @@
 {
-module Parser (Exp(..), AppExp(..), Value(..), Var(..), parseFromFile) where
+module Parser (Exp(..), AppExp(..), Value(..), Var(..), parse, parseFromFile) where
 import Scanner
 }
 
@@ -113,5 +113,5 @@ instance Show Value where
 parseFromFile fil =
    do
       toks <- Scanner.lexFromFile fil
-      return (p_lam toks)
+      return (parse toks)
 }

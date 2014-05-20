@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -w #-}
-module Parser (Exp(..), AppExp(..), Value(..), Var(..), parseFromFile) where
+module Parser (Exp(..), AppExp(..), Value(..), Var(..), parse, parseFromFile) where
 import Scanner
 
 -- parser produced by Happy Version 1.18.9
@@ -355,7 +355,7 @@ happyReturn1 = \a tks -> (return) a
 happyError' :: () => [(Scanner.Token)] -> HappyIdentity a
 happyError' = HappyIdentity . parseError
 
-p_lam tks = happyRunIdentity happySomeParser where
+parse tks = happyRunIdentity happySomeParser where
   happySomeParser = happyThen (happyParse action_0 tks) (\x -> case x of {HappyAbsSyn4 z -> happyReturn z; _other -> notHappyAtAll })
 
 happySeq = happyDontSeq
@@ -426,7 +426,7 @@ instance Show Value where
 parseFromFile fil =
    do
       toks <- Scanner.lexFromFile fil
-      return (p_lam toks)
+      return (parse toks)
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "<built-in>" #-}

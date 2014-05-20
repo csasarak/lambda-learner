@@ -177,10 +177,10 @@ data Token =
    deriving (Eq,Show)
 
 lexFromFile fil = 
-   do
-      s <- readFile fil
-      let toks = (alexScanTokens s)
-      return toks
+      do 
+         s <- readFile fil
+	 let toks = (alexScanTokens s)
+	 return toks
 
 lexFromFileToFile infile outfile = 
    do
