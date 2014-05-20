@@ -1,9 +1,9 @@
 {
-module Parser where
+module Parser (Exp(..), AppExp(..), Value(..), Var(..), parseFromFile) where
 import Scanner
 }
 
-%name p_lam
+%name parse
 %tokentype {Scanner.Token}
 %error { parseError }
 
@@ -31,7 +31,7 @@ Exp
 	| AppExp			{AppExp $1}
 
 AppExp
-	: Lam AppExp			{AppV $1 $2}
+	: Val AppExp			{AppV $1 $2}
 	| '(' Exp ')' AppExp		{AppE $2 $4}
 	| '(' Exp ')'			{Nest $2}
 	| Val				{Value $1}
@@ -42,17 +42,10 @@ Val
 	| Lam				{$1}
 
 Lam
-	: '(' '\\' Args '.' Exp ')'	{Lam $3 $5}
+	: '(' '\\' Var '.' Exp ')'	{Lam $3 $5}
 
 Var
 	: var				{Var $1}
-
-Args
-	: Var Arg			{Args ($1:$2)}
-
-Arg
-	: Var Arg			{$1:$2}
-	|				{[]}
 
 {
 parseError :: [Token] -> a
@@ -64,26 +57,61 @@ data Exp =
       | If AppExp Exp Exp
       | Fix AppExp
       | AppExp AppExp
-	deriving Show
+
+instance Show Exp where
+   show (Plus ae e) = let strAe = show ae
+                          strE = show e
+	              in strAe ++ " + " ++ strE
+   show (Minus ae e) = let strAe = show ae
+                           strE = show e
+	               in strAe ++ " - " ++ strE
+   show (If ae et ee) = let strAe = show ae
+                            strEt = show et
+		            strEe = show ee
+		        in "if " ++ strAe ++ " then " ++ strEt ++ " else " ++ strEe
+   show (Fix ae) = let strAe = show ae
+                   in "fix " ++ strAe
+   show (AppExp ae) = show ae
 
 data AppExp =
 	AppV Value AppExp
       | AppE Exp AppExp
       | Nest Exp
       | Value Value
-	deriving Show
 
-data Args =
-	Args [Var]
-	deriving Show
+instance Show AppExp where
+   show (AppV v ae) = let strV = show v
+                          strAe = show ae
+		      in strV ++ " " ++ strAe
+   show (AppE e ae) = let strE = show e
+                          strAe = show ae
+                      in strE ++ " " ++ strAe
+   show (Nest e) = let strE = show e
+                   in "(" ++ strE ++ ")"
+   show (Value v) = show v
+
 
 data Var =
 	Var Char
-	deriving Show
+	deriving Eq
+
+instance Show Var where
+   show (Var c) = c:""
 
 data Value =
         Int Int
-      | Lam Args Exp
+      | Lam Var Exp
       | Variable Var
-	deriving Show
+
+instance Show Value where
+   show (Int i) = show i
+   show (Lam v e) = let strV = show v
+                        strE = show e
+                     in "(\\" ++ strV ++ ". " ++ strE ++ ")"
+   show (Variable v) = show v
+
+parseFromFile fil =
+   do
+      toks <- Scanner.lexFromFile fil
+      return (p_lam toks)
 }
