@@ -64,7 +64,7 @@ mainWindowDef = do
                                    else
                                     return txtP2)
 
-                -- Lambda: if txtP2 is not empty. If it isn't, use current 
+                -- Lambda: Check if txtP2 is. If it is, use current 
                 -- contents of txtP2 step. 
                 -- interpretText :: Event t (IO ())
                 interpretText = do txt <- pickPaneText
@@ -82,7 +82,6 @@ mainWindowDef = do
                 
                                             
             sink editorP2 [ text :== clear ]
-            --reactimate $ (const return ) <$> efileOpen
             reactimate $ const interpretText <$> eStep
             reactimate $ const runFileOpenDialog <$> efileOpen
     network <- compile networkDescription
