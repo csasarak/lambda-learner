@@ -3,7 +3,6 @@ module LambdaGUI where
 import Graphics.UI.WX hiding (Event)
 import Reactive.Banana
 import Reactive.Banana.WX
-import Debug.Trace as D
 import Interpreter as I
 import Parser as P
 import Data.Maybe as DM
@@ -45,14 +44,23 @@ mainWindowDef = do
             ]]
     let networkDescription :: forall t. Frameworks t => Moment t ()
         networkDescription = do
-
+            -- Event t ()
             eStep <- event0 stepButton command
-            
-            let
-                treeToString  = show <$> I.stepText
+            -- Behavior t String
+            p1Txt <- behaviorText editorP1 ""
 
-            reactimate $ fmap (\_ -> do txt <- get editorP1 text
-                                        set editorP2 [text := txt])  eStep
+            let
+                -- interpretText :: Event t (IO ())
+                interpretText = (\_ -> do txt <- get editorP1 text
+                                          set editorP2 [text := stepStr txt]) <$> eStep
+                clear = "" <$ p1Txt                           
+                                            
+                -- stepIntTxt = stepper (return "") 
+                
+            sink editorP2 [ text :== clear ]
+            reactimate interpretText
     network <- compile networkDescription
     actuate network
-        
+
+stepStr :: String -> String
+stepStr =  (fromMaybe "") . fmap show . I.stepText
