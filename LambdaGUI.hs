@@ -13,7 +13,7 @@ import Control.Exception
 -- A specification for the main GUI window, can be used by the event network
 mainWindowDef :: IO()
 mainWindowDef = do 
-    f <- frame [text := "Lambda Learner"]
+    mainWindowFrame <- frame [text := "Lambda Learner"]
     
     -- Construct the file menu
     fileMenu <- menuPane [text := "File"]
@@ -23,19 +23,19 @@ mainWindowDef = do
     
     -- CMS: If we need to do cleanup operations, this should be moved to the network
     -- description I think
-    set quit [on command := close f]
+    set quit [on command := close mainWindowFrame]
 
     -- Construct panes
-    editorP1 <- textCtrl f []
-    editorP2 <- textCtrl f []
+    editorP1 <- textCtrl mainWindowFrame []
+    editorP2 <- textCtrl mainWindowFrame []
 
     -- buttons 
-    buttonPanel <- panel f []
-    quitButton <- button buttonPanel [text := "Quit", on command := close f]
+    buttonPanel <- panel mainWindowFrame []
+    quitButton <- button buttonPanel [text := "Quit", on command := close mainWindowFrame]
     stepButton <- button buttonPanel [text := "Step"]
 
     -- Lay out the widgets
-    set f [menuBar := [fileMenu], layout := margin 5 $ column 5 [
+    set mainWindowFrame [menuBar := [fileMenu], layout := margin 5 $ column 5 [
             -- Button panel at the top
             hstretch $ container buttonPanel $ row 5 [widget quitButton, widget stepButton],
             -- The text area widgets
@@ -73,7 +73,7 @@ mainWindowDef = do
                 -- Set text in the behavior to ""
                 clear = "" <$ p1Txt                           
                 
-                runFileOpenDialog = do p <- openFile f 
+                runFileOpenDialog = do p <- openFile mainWindowFrame 
                                        fileContents <- (if p /= "" then
                                                             readFile p
                                                         else
