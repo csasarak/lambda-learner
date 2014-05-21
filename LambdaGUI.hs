@@ -78,15 +78,20 @@ mainWindowDef = do
             sink editorP2 [ text :== clear ]
             --reactimate $ (const return ) <$> efileOpen
             reactimate $ const interpretText <$> eStep
-            reactimate $ const (openFile f) <$> efileOpen
+            reactimate $ const (do p <- openFile f 
+                                   fileContents <- (if p /= "" then
+                                                        readFile p
+                                                    else
+                                                        return =<< get editorP1 text)
+                                   set editorP1 [text := fileContents]) <$> efileOpen
     network <- compile networkDescription
     actuate network
 
 stepStr :: String -> String
 stepStr =  (fromMaybe "") . fmap show . I.stepText
 
-openFile :: Window a -> IO ()
+openFile :: Window a -> IO (String)
 openFile parent = do mPath <-fileOpenDialog parent True True "Select lc file" 
                         [("lc", ["*.lc"]), 
                          ("Any file", ["*.*"])] "" ""
-                     putStrLn "opened!"
+                     return $ DM.fromMaybe "" mPath
