@@ -50,8 +50,18 @@ mainWindowDef = do
             p1Txt <- behaviorText editorP1 ""
 
             let
+                
+                pickPaneText :: IO (String)
+                pickPaneText = do txtP2 <- get editorP2 text 
+                                  (if txtP2 == "" then
+                                    get editorP1 text
+                                   else
+                                    return txtP2)
+
+                -- Lambda: if txtP2 is not empty. If it isn't, use current 
+                -- contents of txtP2 step. 
                 -- interpretText :: Event t (IO ())
-                interpretText = (\_ -> do txt <- get editorP1 text
+                interpretText = const (do txt <- pickPaneText
                                           set editorP2 [text := stepStr txt]) <$> eStep
                 clear = "" <$ p1Txt                           
                                             
