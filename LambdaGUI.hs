@@ -17,7 +17,7 @@ mainWindowDef = do
     
     -- Construct the file menu
     fileMenu <- menuPane [text := "File"]
-    -- fileOpen <- menuItem fileMenu [text := "Open..."]
+    fileOpenMI <- menuItem fileMenu [text := "Open..."]
     menuLine fileMenu
     quit <- menuQuit fileMenu [help := "Quit the editor"]
     
@@ -42,10 +42,16 @@ mainWindowDef = do
              row 5 [fill $ widget editorP1, 
                  fill $ widget editorP2]
             ]]
+    -- Now describe the event network
     let networkDescription :: forall t. Frameworks t => Moment t ()
         networkDescription = do
             -- Event t ()
             eStep <- event0 stepButton command
+
+            -- command when a file is opened
+            -- CMS: I have no idea why, but this seems to fire twice per click
+            efileOpen <- event0 fileOpenMI command
+
             -- Behavior t String
             p1Txt <- behaviorText editorP1 ""
 
@@ -61,16 +67,26 @@ mainWindowDef = do
                 -- Lambda: if txtP2 is not empty. If it isn't, use current 
                 -- contents of txtP2 step. 
                 -- interpretText :: Event t (IO ())
-                interpretText = const (do txt <- pickPaneText
-                                          set editorP2 [text := stepStr txt]) <$> eStep
+                interpretText = do txt <- pickPaneText
+                                   set editorP2 [text := stepStr txt]
+
+                -- Set text in the behavior to ""
                 clear = "" <$ p1Txt                           
-                                            
-                -- stepIntTxt = stepper (return "") 
                 
+                
+                                            
             sink editorP2 [ text :== clear ]
-            reactimate interpretText
+            --reactimate $ (const return ) <$> efileOpen
+            reactimate $ const interpretText <$> eStep
+            reactimate $ const (openFile f) <$> efileOpen
     network <- compile networkDescription
     actuate network
 
 stepStr :: String -> String
 stepStr =  (fromMaybe "") . fmap show . I.stepText
+
+openFile :: Window a -> IO ()
+openFile parent = do mPath <-fileOpenDialog parent True True "Select lc file" 
+                        [("lc", ["*.lc"]), 
+                         ("Any file", ["*.*"])] "" ""
+                     putStrLn "opened!"
