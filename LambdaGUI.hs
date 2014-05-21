@@ -73,17 +73,18 @@ mainWindowDef = do
                 -- Set text in the behavior to ""
                 clear = "" <$ p1Txt                           
                 
+                runFileOpenDialog = do p <- openFile f 
+                                       fileContents <- (if p /= "" then
+                                                            readFile p
+                                                        else
+                                                            return =<< get editorP1 text)
+                                       set editorP1 [text := fileContents]
                 
                                             
             sink editorP2 [ text :== clear ]
             --reactimate $ (const return ) <$> efileOpen
             reactimate $ const interpretText <$> eStep
-            reactimate $ const (do p <- openFile f 
-                                   fileContents <- (if p /= "" then
-                                                        readFile p
-                                                    else
-                                                        return =<< get editorP1 text)
-                                   set editorP1 [text := fileContents]) <$> efileOpen
+            reactimate $ const runFileOpenDialog <$> efileOpen
     network <- compile networkDescription
     actuate network
 
